@@ -1,0 +1,10 @@
+Analyze this food image and provide:
+
+1. A list of ingredients detected in the image
+2. Approximate quantities for each ingredient (e.g., "1 cup", "2-3 pieces", "small amount")
+3. Any observations about the freshness or condition of ingredients
+4. A simple recipe suggestion using the detected ingredients
+
+Keep your response structured and concise.
+
+Additionally, based on the detected ingredients, suggest similar recipes from the provided recipe database.

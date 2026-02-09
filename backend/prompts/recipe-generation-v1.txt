@@ -1,0 +1,16 @@
+Based on these ingredients: {ingredients}
+
+And these preferences: {preferences}
+
+{rag_context}
+
+Generate a recipe that incorporates these ingredients. Include:
+
+1. A recipe title
+2. Updated ingredient list (may include additional ingredients for flavor/texture)
+3. Step-by-step cooking instructions
+4. Estimated cooking time
+5. Serving size
+6. Visible reasoning for ingredient choices and cooking methods
+
+Ensure the recipe is practical and achievable with the provided ingredients, drawing inspiration from the similar recipes in the database when available.

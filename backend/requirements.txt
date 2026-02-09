@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+google-generativeai
+python-dotenv
+sentence-transformers
+psycopg2-binary
+sqlalchemy
+cryptography
+python-multipart
+Pillow
+faiss-cpu
+pydantic
+pytest
+pytest-asyncio

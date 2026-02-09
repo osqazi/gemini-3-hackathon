@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "title": "Vegetable Stir Fry",
+    "ingredients": [
+      "broccoli",
+      "carrots",
+      "bell peppers",
+      "onions",
+      "garlic",
+      "ginger",
+      "soy sauce"
+    ],
+    "instructions": [
+      "Stir fry vegetables in wok with oil",
+      "Add sauce and seasonings",
+      "Serve hot with rice"
+    ],
+    "category": "vegetarian",
+    "prep_time": "15 minutes"
+  },
+  {
+    "id": 2,
+    "title": "Classic Caesar Salad",
+    "ingredients": [
+      "romaine lettuce",
+      "parmesan cheese",
+      "croutons",
+      "caesar dressing",
+      "lemon juice",
+      "anchovies"
+    ],
+    "instructions": [
+      "Chop lettuce into bite-sized pieces",
+      "Add dressing and toss",
+      "Top with parmesan and croutons"
+    ],
+    "category": "salad",
+    "prep_time": "10 minutes"
+  },
+  {
+    "id": 3,
+    "title": "Tomato Basil Pasta",
+    "ingredients": [
+      "pasta",
+      "tomatoes",
+      "basil",
+      "olive oil",
+      "garlic",
+      "parmesan"
+    ],
+    "instructions": [
+      "Cook pasta according to package directions",
+      "Sauté garlic and tomatoes",
+      "Combine with pasta and basil"
+    ],
+    "category": "pasta",
+    "prep_time": "20 minutes"
+  },
+  {
+    "id": 4,
+    "title": "Avocado Toast",
+    "ingredients": [
+      "bread",
+      "avocado",
+      "lemon juice",
+      "salt",
+      "pepper",
+      "red pepper flakes"
+    ],
+    "instructions": [
+      "Toast bread slices",
+      "Mash avocado with lemon juice and seasonings",
+      "Spread on toast"
+    ],
+    "category": "breakfast",
+    "prep_time": "5 minutes"
+  },
+  {
+    "id": 5,
+    "title": "Chicken and Rice",
+    "ingredients": [
+      "chicken breast",
+      "rice",
+      "onions",
+      "garlic",
+      "chicken broth",
+      "mixed herbs"
+    ],
+    "instructions": [
+      "Brown chicken in pan",
+      "Add rice and broth",
+      "Simmer until cooked"
+    ],
+    "category": "main dish",
+    "prep_time": "30 minutes"
+  }
+]

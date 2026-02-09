@@ -1,0 +1,145 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import UploadDropzone from '@/components/UploadDropzone';
+import { analyzePhoto } from '@/lib/api';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { saveSession, createNewSession, updateSessionIngredients, updateSessionRecipe } from '@/lib/session';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ErrorDisplay } from '@/components/ui/error-display';
+import { Spinner } from '@/components/ui/spinner';
+import { Recipe } from '@/types';
+
+const GuestPage = () => {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [observations, setObservations] = useState<string>('');
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
+
+  const { uploading, progress, uploadFile, reset } = useFileUpload();
+
+  const handleFileUpload = async (file: File) => {
+    setError(null);
+    setAnalyzing(true);
+
+    try {
+      // Upload and analyze the photo
+      const result = await uploadFile(file);
+
+      // Update state with results
+      setIngredients(result.ingredients);
+      setObservations(result.observations || '');
+
+      if (result.recipe) {
+        setRecipe(result.recipe);
+      }
+
+      // Create or update session with results
+      let session = createNewSession(result.ingredients);
+      session.id = result.session_id; // Use the session ID from the result
+
+      // Add image analysis data to the session in the expected format
+      session.image_analysis = {
+        ingredients: result.ingredients,
+        observations: result.observations || ''
+      };
+
+      if (result.recipe) {
+        session.currentRecipe = result.recipe;
+      }
+      saveSession(session);
+
+      // Redirect to chat page after a short delay to show results
+      setTimeout(() => {
+        router.push(`/chat/${result.session_id}`);
+      }, 2000);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to analyze photo';
+      setError(errorMessage);
+      console.error('Upload error:', err);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <Card className="w-full">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">RecipeRAG - AI Recipe Generator</CardTitle>
+          <p className="text-muted-foreground">
+            Upload a photo of your ingredients and get personalized recipes powered by Gemini AI
+          </p>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          <UploadDropzone
+            onFileUpload={handleFileUpload}
+            maxFileSize={10}
+            acceptedFileTypes={['image/jpeg', 'image/png', 'image/jpg']}
+            showCameraOption={true}
+          />
+
+          {(uploading || analyzing) && (
+            <div className="flex flex-col items-center justify-center py-6">
+              <Spinner size="lg" className="mb-2" />
+              <p className="text-muted-foreground">
+                {uploading ? `Uploading... ${progress}%` : analyzing ? 'Analyzing ingredients...' : 'Processing...'}
+              </p>
+            </div>
+          )}
+
+          {error && (
+            <ErrorDisplay
+              message={error}
+              className="mt-4"
+            />
+          )}
+
+          {(ingredients.length > 0 || observations) && (
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold">Analysis Results:</h3>
+
+              {ingredients.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2">Detected Ingredients:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {ingredients.map((ingredient, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
+                      >
+                        {ingredient}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {observations && (
+                <div>
+                  <h4 className="font-medium mb-2">Observations:</h4>
+                  <p className="text-muted-foreground">{observations}</p>
+                </div>
+              )}
+
+              {recipe && (
+                <div>
+                  <h4 className="font-medium mb-2">Initial Recipe:</h4>
+                  <p className="text-muted-foreground">{recipe.title}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default GuestPage;
