@@ -68,7 +68,7 @@ export default function SignUpPage() {
         password,
         redirect: true, // Allow redirect to happen automatically
         callbackUrl: '/chefs-board', // Redirect to Chef's Board page after successful sign up
-      });
+      }) as any; // Type assertion to handle NextAuth return type
 
       if (result?.error) {
         setError(result.error);
