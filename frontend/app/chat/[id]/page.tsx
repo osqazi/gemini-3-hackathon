@@ -139,7 +139,7 @@ const ChatPage = () => {
 
               if (response.success && response.session) {
                 // Create a new session object with the loaded data
-                const loadedSession = {
+                const loadedSession: any = {
                   id: params.id as string,
                   createdAt: new Date(),
                   expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
