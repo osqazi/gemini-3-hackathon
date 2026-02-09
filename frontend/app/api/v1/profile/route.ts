@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const userId = session.user?.dbId || session.user?.id; // Use database ID if available
+    const userId = (session.user as any)?.dbId || session.user?.id; // Use database ID if available
     if (!userId) {
       return new Response(JSON.stringify({ error: 'User ID not found' }), {
         status: 400,
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const userId = session.user?.dbId || session.user?.id; // Use database ID if available
+    const userId = (session.user as any)?.dbId || session.user?.id; // Use database ID if available
     if (!userId) {
       return new Response(JSON.stringify({ error: 'User ID not found' }), {
         status: 400,
