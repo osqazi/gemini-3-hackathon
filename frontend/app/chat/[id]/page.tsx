@@ -524,7 +524,6 @@ const ChatPage = () => {
                             const fallbackRecipe: Recipe = {
                               id: `extracted-${message.id}`,
                               title: "New Recipe",
-                              description: "",
                               ingredients: [],
                               instructions: [],
                               prepTime: 0,
@@ -533,6 +532,7 @@ const ChatPage = () => {
                               servings: 1,
                               difficulty: "medium" as const,
                               nutritionInfo: {},
+                              reasoning: "",
                               variations: [],
                               author: "AI Generated",
                               createdAt: new Date(),
