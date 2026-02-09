@@ -521,30 +521,26 @@ const ChatPage = () => {
                             console.log("Falling back to local extraction");
                             
                             // Create a temporary recipe object with all the required fields
-                            const fallbackRecipe = {
+                            const fallbackRecipe: Recipe = {
                               id: `extracted-${message.id}`,
                               title: "New Recipe",
                               description: "",
                               ingredients: [],
                               instructions: [],
-                              prep_time: 0,
-                              cook_time: 0,
-                              total_time: 0,
+                              prepTime: 0,
+                              cookTime: 0,
+                              totalTime: 0,
                               servings: 1,
-                              difficulty: "medium",
-                              nutrition_info: {},
-                              tips_variations: [],
+                              difficulty: "medium" as const,
+                              nutritionInfo: {},
+                              variations: [],
                               author: "AI Generated",
-                              generated_at: new Date().toISOString(),
-                              updated_at: new Date().toISOString(),
-                              images: [],
+                              createdAt: new Date(),
                               tags: [],
-                              customization_notes: [],
-                              source_recipe_id: null,
-                              rag_context: {},
-                              public: false,
-                              user_id: session?.user?.dbId || "unknown",
-                              username: session?.user?.name || "Anonymous Chef"
+                              customizationNotes: [],
+                              images: [],
+                              sourceRecipeId: undefined,
+                              ragContext: undefined
                             };
                             
                             // Update the current recipe with the fallback data
