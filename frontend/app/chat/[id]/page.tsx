@@ -527,7 +527,7 @@ const ChatPage = () => {
                               ingredients: [],
                               instructions: [],
                               prepTime: 0,
-                              cookTime: 0,
+                              cookingTime: 0,
                               totalTime: 0,
                               servings: 1,
                               difficulty: "medium" as const,
