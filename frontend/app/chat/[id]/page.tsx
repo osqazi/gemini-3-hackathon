@@ -331,6 +331,12 @@ const ChatPage = () => {
 
       // Send message to API with preferences flag and user ID (use dbId which matches backend)
       const response = await sendMessage(sessionId, inputMessage, preferencesEnabled, session?.user?.dbId);
+      
+      // Check if response is valid
+      if (!response || !response.session_id) {
+        console.error('Invalid response from server - session ID missing:', response);
+        throw new Error('Invalid response from server - session ID missing');
+      }
 
       // Add AI response to UI
       const aiMessage: Message = {

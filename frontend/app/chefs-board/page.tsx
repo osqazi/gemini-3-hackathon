@@ -121,16 +121,60 @@ export default function ChefsBoardPage() {
 
       // Use the backend API URL directly
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-      const response = await fetch(`${BACKEND_URL}/api/v1/public-recipes?${queryParams.toString()}`);
+      let response;
+      let data;
+      
+      try {
+        response = await fetch(`${BACKEND_URL}/api/v1/public-recipes?${queryParams.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          credentials: 'include', // Include credentials (cookies) for cross-origin requests
+        });
 
-      if (!response.ok) {
-        // Try to get error details
-        const errorText = await response.text();
-        console.error('API Error:', errorText);
-        throw new Error(`Failed to fetch recipes: ${response.status} ${response.statusText}`);
+        // Check if we got a response at all
+        if (!response.ok) {
+          // Try to get error details
+          const errorText = await response.text().catch(() => '');
+          console.error('API Error:', errorText);
+          
+          // Check if this looks like an HTML error page (e.g., 404 page)
+          if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
+            console.error('Received HTML error page instead of API response - Hugging Face deployment may not have this endpoint');
+            
+            // Provide empty data as fallback for Hugging Face deployment
+            if (!append) setRecipes([]);
+            setHasMore(false);
+            return;
+          }
+          
+          throw new Error(`Failed to fetch recipes: ${response.status} ${response.statusText}`);
+        }
+
+        data = await response.json();
+
+        // Check if response data is valid
+        if (!data || !Array.isArray(data.recipes)) {
+          console.error('Invalid response format from API:', data);
+          if (!append) setRecipes([]); // Clear recipes if this was the initial load
+          setHasMore(false);
+          return;
+        }
+      } catch (error: any) {
+        // Handle CORS errors and network errors
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          console.error('CORS or network error when fetching recipes:', error);
+          
+          // Provide empty data as fallback for CORS/network issues
+          if (!append) setRecipes([]);
+          setHasMore(false);
+          return;
+        }
+        
+        console.error('Unexpected error fetching recipes:', error);
+        throw error;
       }
-
-      const data = await response.json();
 
       if (append) {
         setRecipes(prev => {
@@ -182,17 +226,77 @@ export default function ChefsBoardPage() {
   const fetchStatistics = async () => {
     try {
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-      const response = await fetch(`${BACKEND_URL}/api/v1/public-recipes/stats`);
+      let response;
+      let stats;
+      
+      try {
+        response = await fetch(`${BACKEND_URL}/api/v1/public-recipes/stats`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          credentials: 'include', // Include credentials (cookies) for cross-origin requests
+        });
 
-      if (response.ok) {
-        const stats = await response.json();
+        if (response.ok) {
+          // Check if response is JSON or HTML error page
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('text/html')) {
+            console.error('Received HTML error page instead of API response for stats - Hugging Face deployment may not have this endpoint');
+            // Fallback to calculating from loaded recipes
+            setTotalRecipesCount(recipes.length);
+            setEasyRecipesCount(recipes.filter(r => r.difficulty === 'easy').length);
+            setQuickMealsCount(recipes.filter(r => r.total_time && r.total_time <= 30).length);
+            setChefsContributingCount(new Set(recipes.map(r => r.user_id)).size);
+            return;
+          }
+          
+          stats = await response.json();
 
-        setTotalRecipesCount(stats.total_recipes || 0);
-        setEasyRecipesCount(stats.easy_recipes || 0);
-        setQuickMealsCount(stats.quick_meals || 0);
-        setChefsContributingCount(stats.chefs_contributing || 0);
-      } else {
-        // Fallback to calculating from loaded recipes if stats endpoint doesn't exist
+          // Validate the stats response
+          if (stats && typeof stats === 'object') {
+            setTotalRecipesCount(stats.total_recipes || 0);
+            setEasyRecipesCount(stats.easy_recipes || 0);
+            setQuickMealsCount(stats.quick_meals || 0);
+            setChefsContributingCount(stats.chefs_contributing || 0);
+          } else {
+            console.error('Invalid stats response from API:', stats);
+            // Fallback to calculating from loaded recipes
+            setTotalRecipesCount(recipes.length);
+            setEasyRecipesCount(recipes.filter(r => r.difficulty === 'easy').length);
+            setQuickMealsCount(recipes.filter(r => r.total_time && r.total_time <= 30).length);
+            setChefsContributingCount(new Set(recipes.map(r => r.user_id)).size);
+          }
+        } else {
+          // Check if we got an HTML error page
+          const errorText = await response.text();
+          if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
+            console.error('Received HTML error page instead of API response for stats - Hugging Face deployment may not have this endpoint');
+          } else {
+            console.warn('Stats endpoint not available, falling back to calculated values');
+          }
+          
+          // Fallback to calculating from loaded recipes if stats endpoint doesn't exist
+          setTotalRecipesCount(recipes.length);
+          setEasyRecipesCount(recipes.filter(r => r.difficulty === 'easy').length);
+          setQuickMealsCount(recipes.filter(r => r.total_time && r.total_time <= 30).length);
+          setChefsContributingCount(new Set(recipes.map(r => r.user_id)).size);
+        }
+      } catch (error: any) {
+        // Handle CORS errors and network errors
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          console.error('CORS or network error when fetching stats:', error);
+          
+          // Fallback to calculating from loaded recipes for CORS/network issues
+          setTotalRecipesCount(recipes.length);
+          setEasyRecipesCount(recipes.filter(r => r.difficulty === 'easy').length);
+          setQuickMealsCount(recipes.filter(r => r.total_time && r.total_time <= 30).length);
+          setChefsContributingCount(new Set(recipes.map(r => r.user_id)).size);
+          return;
+        }
+        
+        console.error('Unexpected error fetching stats:', error);
+        // Fallback to calculating from loaded recipes
         setTotalRecipesCount(recipes.length);
         setEasyRecipesCount(recipes.filter(r => r.difficulty === 'easy').length);
         setQuickMealsCount(recipes.filter(r => r.total_time && r.total_time <= 30).length);

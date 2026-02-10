@@ -180,6 +180,12 @@ export function createNewSession(ingredients: string[] = []): Session {
     currentRecipe: null,
   };
 
+  // Validate session creation
+  if (!newSession.id) {
+    console.error('Failed to create session - no session ID generated');
+    throw new Error('Failed to create session');
+  }
+
   return newSession;
 }
 

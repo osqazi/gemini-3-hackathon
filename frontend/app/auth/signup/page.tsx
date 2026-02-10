@@ -34,9 +34,7 @@ export default function SignUpPage() {
     try {
       // Create user via API first with full name using the backend URL directly
       // Ensure we use the correct backend server URL
-      const BACKEND_URL = typeof window !== 'undefined'
-        ? 'http://localhost:8000'  // Client-side - use hardcoded backend URL
-        : process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';  // Server-side
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';  // Use environment variable for both client and server
 
       const registerResponse = await fetch(`${BACKEND_URL}/api/v1/user/register`, {
         method: 'POST',
@@ -48,6 +46,7 @@ export default function SignUpPage() {
           password,
           username: fullName, // Pass full name as username
         }),
+        credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
 
       if (!registerResponse.ok) {

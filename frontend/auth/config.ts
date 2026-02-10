@@ -80,26 +80,34 @@ export const authConfig: NextAuthConfig = {
 
         console.log('Sign in callback:', { email: user.email, provider, providerId });
 
-        // Create or lookup user in backend database
-        const response = await userApi.lookupOrCreate({
-          email: user.email!,
-          provider: provider,
-          provider_id: providerId || undefined,
-          username: user.name || user.email!.split('@')[0],
-          password: undefined // Only for credentials login, which is handled separately
-        });
+        // Only make API calls for non-Google providers or if we have necessary user data
+        if (provider !== 'google' || (user.email && user.name)) {
+          // Create or lookup user in backend database
+          const response = await userApi.lookupOrCreate({
+            email: user.email!,
+            provider: provider,
+            provider_id: providerId || undefined,
+            username: user.name || user.email!.split('@')[0],
+            password: undefined // Only for credentials login, which is handled separately
+          });
 
-        console.log('User API response:', response);
+          console.log('User API response:', response);
 
-        if (response.success && response.user) {
-          return true;
+          if (response.success && response.user) {
+            return true;
+          }
+
+          console.error('Sign in failed:', response);
+          return false;
         }
 
-        console.error('Sign in failed:', response);
-        return false;
+        // If it's Google provider and we have minimal user data, allow sign-in
+        return true;
       } catch (error) {
         console.error('Sign in error:', error);
-        return false;
+        // Don't fail the sign-in just because of API issues - user can still be authenticated
+        // The user data can be synced later in the session callback
+        return true;
       }
     },
 
@@ -140,6 +148,7 @@ export const authConfig: NextAuthConfig = {
         }
       } catch (error) {
         console.error('Session error:', error);
+        // Don't fail the session if the API call fails - just continue with basic user info
       }
 
       return session;

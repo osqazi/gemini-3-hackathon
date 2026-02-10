@@ -24,13 +24,23 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Prepare headers, copying cookies from the original request for session handling
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-User-ID': userId, // Pass user ID to backend
+    };
+
+    // Copy cookies from the original request to maintain session
+    const cookies = request.headers.get('cookie');
+    if (cookies) {
+      headers['cookie'] = cookies;
+    }
+
     // Proxy the request to the backend
     const backendResponse = await fetch(`${BACKEND_URL}/api/v1/profile`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-ID': userId, // Pass user ID to backend
-      },
+      headers,
+      credentials: 'include', // Include credentials (cookies) for cross-origin requests
     });
 
     const backendData = await backendResponse.json();
@@ -70,14 +80,24 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Prepare headers, copying cookies from the original request for session handling
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-User-ID': userId, // Pass user ID to backend
+    };
+
+    // Copy cookies from the original request to maintain session
+    const cookies = request.headers.get('cookie');
+    if (cookies) {
+      headers['cookie'] = cookies;
+    }
+
     // Proxy the request to the backend
     const backendResponse = await fetch(`${BACKEND_URL}/api/v1/profile`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-ID': userId, // Pass user ID to backend
-      },
+      headers,
       body: JSON.stringify(body), // Forward the entire body
+      credentials: 'include', // Include credentials (cookies) for cross-origin requests
     });
 
     const backendData = await backendResponse.json();

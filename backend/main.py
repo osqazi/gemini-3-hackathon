@@ -19,15 +19,20 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS for localhost:3000 for Next.js development
+# Configure CORS to allow requests from your Vercel frontend and localhost for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Allow Next.js dev server
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000", 
+        "https://gemini-3-ht.vercel.app",  # Production Vercel frontend
+        "https://osqazi-g3h.hf.space"       # Hugging Face Space backend (for same-origin requests if needed)
+    ],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*", "X-Requested-With", "X-User-ID", "X-Session-ID", "Authorization"],
     # Expose headers for client-side access if needed
-    expose_headers=["Access-Control-Allow-Origin"]
+    expose_headers=["Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Set-Cookie"]
 )
 
 # Include API routers

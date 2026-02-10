@@ -36,11 +36,16 @@ const ChatPage = () => {
     const session = getCurrentSession();
     if (!session) {
       // If no session exists, create a new one and redirect to the chat page with the new session ID
-      const newSession = createNewSession();
-      saveSession(newSession);
+      try {
+        const newSession = createNewSession();
+        saveSession(newSession);
 
-      // Redirect to the chat page with the new session ID
-      router.push(`/chat/${newSession.id}`);
+        // Redirect to the chat page with the new session ID
+        router.push(`/chat/${newSession.id}`);
+      } catch (error) {
+        console.error('Error creating new session:', error);
+        setError('Failed to initialize chat session. Please try refreshing the page.');
+      }
     } else {
       // Session exists, don't set as expired
       setSessionExpired(false);
@@ -103,6 +108,12 @@ const ChatPage = () => {
 
       // Send message to API using the session ID
       const response = await sendMessage(currentSession.id, inputMessage);
+      
+      // Check if response is valid
+      if (!response || !response.session_id) {
+        console.error('Invalid response from server - session ID missing:', response);
+        throw new Error('Invalid response from server - session ID missing');
+      }
 
       // Add AI response to UI
       const aiMessage: Message = {

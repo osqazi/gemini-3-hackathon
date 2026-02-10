@@ -22,6 +22,7 @@ export async function analyzePhoto(imageFile: File, sessionId?: string): Promise
   const response = await fetch(`${API_BASE_URL}/api/v1/analyze-photo`, {
     method: 'POST',
     body: formData,
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -29,7 +30,15 @@ export async function analyzePhoto(imageFile: File, sessionId?: string): Promise
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -55,6 +64,7 @@ export async function sendMessage(sessionId: string, message: string, includePre
     method: 'POST',
     body: formData,
     headers,
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
     // Don't set Content-Type header when using FormData - the browser sets it automatically
   });
 
@@ -63,7 +73,15 @@ export async function sendMessage(sessionId: string, message: string, includePre
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -82,6 +100,7 @@ export async function exportRecipe(recipeId: string, format: 'pdf' | 'markdown')
       recipe_id: recipeId,
       format: format
     }),
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -89,7 +108,15 @@ export async function exportRecipe(recipeId: string, format: 'pdf' | 'markdown')
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -108,6 +135,7 @@ export async function getChatHistory(userId?: string): Promise<{ success: boolea
   const response = await fetch(`${API_BASE_URL}/api/v1/chat/history`, {
     method: 'GET',
     headers,
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -115,7 +143,15 @@ export async function getChatHistory(userId?: string): Promise<{ success: boolea
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -136,6 +172,7 @@ export async function getChatSession(sessionId: string, userId?: string): Promis
     const response = await fetch(`${API_BASE_URL}/api/v1/chat/session/${sessionId}`, {
       method: 'GET',
       headers,
+      credentials: 'include', // Include credentials (cookies) for cross-origin requests
     });
 
     if (!response.ok) {
@@ -174,6 +211,7 @@ export async function deleteChatSession(sessionId: string, userId?: string): Pro
   const response = await fetch(`${API_BASE_URL}/api/v1/chat/session/${sessionId}`, {
     method: 'DELETE',
     headers,
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -181,7 +219,15 @@ export async function deleteChatSession(sessionId: string, userId?: string): Pro
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -200,6 +246,7 @@ export async function deleteAllChatHistory(userId?: string): Promise<{ success: 
   const response = await fetch(`${API_BASE_URL}/api/v1/chat/history`, {
     method: 'DELETE',
     headers,
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -207,7 +254,15 @@ export async function deleteAllChatHistory(userId?: string): Promise<{ success: 
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -220,6 +275,7 @@ export async function createNewChatSession(): Promise<{ success: boolean; messag
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -241,6 +297,7 @@ export async function getSession(sessionId: string): Promise<SessionResponse> {
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -248,7 +305,15 @@ export async function getSession(sessionId: string): Promise<SessionResponse> {
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -274,6 +339,7 @@ export async function saveRecipe(recipe: any, isPublic: boolean, userId?: string
       recipe,
       isPublic
     }),
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
@@ -281,7 +347,15 @@ export async function saveRecipe(recipe: any, isPublic: boolean, userId?: string
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }
 
 /**
@@ -294,11 +368,20 @@ export async function checkHealth(): Promise<{ status: string; timestamp: string
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Include credentials (cookies) for cross-origin requests
   });
 
   if (!response.ok) {
     throw new Error(`Health check failed! status: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response data
+  if (!data) {
+    console.error('Null response received from API:', response.url);
+    throw new Error('Invalid response from server');
+  }
+  
+  return data;
 }

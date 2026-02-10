@@ -32,6 +32,8 @@ export interface RegisterUserRequest {
 }
 
 // Get the backend API URL from environment
+// Log the URL being used for debugging
+console.log('Backend URL being used:', process.env.NEXT_PUBLIC_API_BASE_URL);
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 export const userApi = {
@@ -39,25 +41,46 @@ export const userApi = {
   async lookupOrCreate(userData: CreateUserRequest): Promise<UserApiResponse> {
     try {
       const url = `${BACKEND_URL}/api/v1/user/lookup-or-create`;
+      console.log('Making request to:', url); // Debug log
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
+        credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
 
       if (!response.ok) {
         console.error(`User API lookupOrCreate error: ${response.status} ${response.statusText}`);
         const errorText = await response.text();
         console.error('Error response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          message: `HTTP error! status: ${response.status}`
+        }; // Return a failure response instead of throwing
       }
 
-      return await response.json();
+      const data = await response.json();
+      
+      // Validate response data
+      if (!data) {
+        console.error('Null response received from user API lookupOrCreate');
+        return {
+          success: false,
+          message: 'Invalid response from server'
+        };
+      }
+      
+      return data;
     } catch (error) {
       console.error('User API lookupOrCreate network error:', error);
-      throw error;
+      // Return a failure response instead of throwing to prevent authentication failure
+      return {
+        success: false,
+        message: 'Network error connecting to user API'
+      };
     }
   },
 
@@ -65,25 +88,46 @@ export const userApi = {
   async validateCredentials(credentials: ValidateCredentialsRequest): Promise<UserApiResponse> {
     try {
       const url = `${BACKEND_URL}/api/v1/user/validate-credentials`;
+      console.log('Making validateCredentials request to:', url); // Debug log
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(credentials),
+        credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
 
       if (!response.ok) {
         console.error(`User API validateCredentials error: ${response.status} ${response.statusText}`);
         const errorText = await response.text();
         console.error('Error response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          message: `HTTP error! status: ${response.status}`
+        }; // Return a failure response instead of throwing
       }
 
-      return await response.json();
+      const data = await response.json();
+      
+      // Validate response data
+      if (!data) {
+        console.error('Null response received from user API validateCredentials');
+        return {
+          success: false,
+          message: 'Invalid response from server'
+        };
+      }
+      
+      return data;
     } catch (error) {
       console.error('User API validateCredentials network error:', error);
-      throw error;
+      // Return a failure response instead of throwing to prevent authentication failure
+      return {
+        success: false,
+        message: 'Network error connecting to user API'
+      };
     }
   },
 
@@ -91,25 +135,46 @@ export const userApi = {
   async register(userData: RegisterUserRequest): Promise<UserApiResponse> {
     try {
       const url = `${BACKEND_URL}/api/v1/user/register`;
+      console.log('Making register request to:', url); // Debug log
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
+        credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
 
       if (!response.ok) {
         console.error(`User API register error: ${response.status} ${response.statusText}`);
         const errorText = await response.text();
         console.error('Error response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          message: `HTTP error! status: ${response.status}`
+        }; // Return a failure response instead of throwing
       }
 
-      return await response.json();
+      const data = await response.json();
+      
+      // Validate response data
+      if (!data) {
+        console.error('Null response received from user API register');
+        return {
+          success: false,
+          message: 'Invalid response from server'
+        };
+      }
+      
+      return data;
     } catch (error) {
       console.error('User API register network error:', error);
-      throw error;
+      // Return a failure response instead of throwing to prevent authentication failure
+      return {
+        success: false,
+        message: 'Network error connecting to user API'
+      };
     }
   }
 };
