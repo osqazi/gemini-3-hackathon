@@ -32,9 +32,7 @@ export interface RegisterUserRequest {
 }
 
 // Get the backend API URL from environment
-const BACKEND_URL = typeof window !== 'undefined'
-  ? '' // Client-side, relative URLs work
-  : process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'; // Server-side, use absolute URL
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 export const userApi = {
   // Lookup or create user
