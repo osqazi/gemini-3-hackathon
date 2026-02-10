@@ -54,7 +54,7 @@ export const authConfig: NextAuthConfig = {
           const registerResponse = await userApi.register({
             email: credentials.email as string,
             password: credentials.password as string,
-            username: credentials.email.split('@')[0] // Use email prefix as username for auto-registration
+            username: (credentials.email as string).split('@')[0] // Use email prefix as username for auto-registration
           });
 
           console.log('Register response:', registerResponse);
