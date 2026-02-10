@@ -107,13 +107,14 @@ export const userApi = {
     try {
       const url = `${BACKEND_URL}/api/v1/user/validate-credentials`;
       console.log('Making validateCredentials request to:', url); // Debug log
+      console.log('Backend URL being used:', BACKEND_URL); // Additional debug log
 
       // Get any available cookies to include in the request
       const cookies = getCookiesForRequest();
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      
+
       if (cookies) {
         headers['Cookie'] = cookies;
       }
@@ -125,18 +126,20 @@ export const userApi = {
         credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
 
+      console.log('Validate credentials response status:', response.status); // Debug log
+
       if (!response.ok) {
         console.error(`User API validateCredentials error: ${response.status} ${response.statusText}`);
         const errorText = await response.text();
         console.error('Error response:', errorText);
         return {
           success: false,
-          message: `HTTP error! status: ${response.status}`
+          message: `HTTP error! status: ${response.status} - ${errorText}`
         }; // Return a failure response instead of throwing
       }
 
       const data = await response.json();
-      
+
       // Validate response data
       if (!data) {
         console.error('Null response received from user API validateCredentials');
@@ -145,14 +148,15 @@ export const userApi = {
           message: 'Invalid response from server'
         };
       }
-      
+
+      console.log('Validate credentials successful response:', data); // Debug log
       return data;
     } catch (error) {
       console.error('User API validateCredentials network error:', error);
       // Return a failure response instead of throwing to prevent authentication failure
       return {
         success: false,
-        message: 'Network error connecting to user API'
+        message: `Network error connecting to user API: ${error instanceof Error ? error.message : String(error)}`
       };
     }
   },
@@ -162,13 +166,14 @@ export const userApi = {
     try {
       const url = `${BACKEND_URL}/api/v1/user/register`;
       console.log('Making register request to:', url); // Debug log
+      console.log('Backend URL being used:', BACKEND_URL); // Additional debug log
 
       // Get any available cookies to include in the request
       const cookies = getCookiesForRequest();
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      
+
       if (cookies) {
         headers['Cookie'] = cookies;
       }
@@ -180,18 +185,20 @@ export const userApi = {
         credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
 
+      console.log('Register response status:', response.status); // Debug log
+
       if (!response.ok) {
         console.error(`User API register error: ${response.status} ${response.statusText}`);
         const errorText = await response.text();
         console.error('Error response:', errorText);
         return {
           success: false,
-          message: `HTTP error! status: ${response.status}`
+          message: `HTTP error! status: ${response.status} - ${errorText}`
         }; // Return a failure response instead of throwing
       }
 
       const data = await response.json();
-      
+
       // Validate response data
       if (!data) {
         console.error('Null response received from user API register');
@@ -200,14 +207,15 @@ export const userApi = {
           message: 'Invalid response from server'
         };
       }
-      
+
+      console.log('Register successful response:', data); // Debug log
       return data;
     } catch (error) {
       console.error('User API register network error:', error);
       // Return a failure response instead of throwing to prevent authentication failure
       return {
         success: false,
-        message: 'Network error connecting to user API'
+        message: `Network error connecting to user API: ${error instanceof Error ? error.message : String(error)}`
       };
     }
   }

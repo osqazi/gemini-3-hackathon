@@ -19,6 +19,7 @@ export const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         if (!credentials || !credentials.email || !credentials.password) {
+          console.log('Missing credentials');
           return null;
         }
 
@@ -29,6 +30,8 @@ export const authConfig: NextAuthConfig = {
             password: credentials.password as string
           });
 
+          console.log('Validate credentials response:', response);
+
           if (response.success && response.user) {
             // User exists and credentials are valid
             return {
@@ -36,32 +39,59 @@ export const authConfig: NextAuthConfig = {
               email: response.user.email,
               name: response.user.username || response.user.email.split('@')[0],
             } as any; // Type assertion to bypass strict typing
+          } else {
+            console.log('Credential validation failed:', response.message);
           }
         } catch (validationError) {
-          console.log('Validation failed, attempting registration:', validationError);
+          console.error('Validation failed:', validationError);
+          // Don't return null immediately, try registration as fallback
         }
 
         // If validation failed, try to register the user (for first-time sign-ups)
+        // Note: This auto-registration on sign-in might not be desired behavior
+        // You might want to separate sign-up and sign-in flows
         try {
           const registerResponse = await userApi.register({
             email: credentials.email as string,
             password: credentials.password as string,
-            username: credentials.fullName as string // Use full name as username
+            username: credentials.email.split('@')[0] // Use email prefix as username for auto-registration
           });
+
+          console.log('Register response:', registerResponse);
 
           if (registerResponse.success && registerResponse.user) {
             // User registered successfully, return user data
             return {
               id: registerResponse.user.id,
               email: registerResponse.user.email,
-              name: registerResponse.user.username || credentials.fullName || registerResponse.user.email.split('@')[0],
+              name: registerResponse.user.username || registerResponse.user.email.split('@')[0],
             } as any; // Type assertion to bypass strict typing
+          } else {
+            console.log('Registration failed:', registerResponse.message);
           }
         } catch (registrationError) {
           console.error('Registration failed:', registrationError);
         }
 
+        // If both validation and registration failed, check if it's a network issue
+        // If the backend is unreachable, we might want to provide a more informative error
+        console.log('Both validation and registration failed - checking for network issues');
+        
+        // Attempt a simple connectivity test to the backend
+        try {
+          const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+          const testResponse = await fetch(`${backendUrl}/api/health`, { method: 'GET' }).catch(() => null);
+          
+          if (!testResponse || !testResponse.ok) {
+            console.log('Backend connectivity issue detected - backend may be unreachable');
+            // Still return null, but we now have more information about why
+          }
+        } catch (connectivityError) {
+          console.log('Could not reach backend for connectivity test');
+        }
+
         // If both validation and registration failed
+        console.log('Authorization failed - returning null');
         return null;
       }
     })
