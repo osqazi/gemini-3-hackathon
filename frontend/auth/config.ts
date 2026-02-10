@@ -71,6 +71,17 @@ export const authConfig: NextAuthConfig = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',  // Cross-site for production, lax for development
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
+      }
+    }
+  },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       try {

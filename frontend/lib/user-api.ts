@@ -36,6 +36,16 @@ export interface RegisterUserRequest {
 console.log('Backend URL being used:', process.env.NEXT_PUBLIC_API_BASE_URL);
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
+// Function to get cookies for requests (when available)
+function getCookiesForRequest(): string | undefined {
+  if (typeof window !== 'undefined') {
+    // Client-side - get cookies from document
+    return document.cookie;
+  }
+  // Server-side - cookies would need to be passed explicitly
+  return undefined;
+}
+
 export const userApi = {
   // Lookup or create user
   async lookupOrCreate(userData: CreateUserRequest): Promise<UserApiResponse> {
@@ -43,11 +53,19 @@ export const userApi = {
       const url = `${BACKEND_URL}/api/v1/user/lookup-or-create`;
       console.log('Making request to:', url); // Debug log
 
+      // Get any available cookies to include in the request
+      const cookies = getCookiesForRequest();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (cookies) {
+        headers['Cookie'] = cookies;
+      }
+
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(userData),
         credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
@@ -90,11 +108,19 @@ export const userApi = {
       const url = `${BACKEND_URL}/api/v1/user/validate-credentials`;
       console.log('Making validateCredentials request to:', url); // Debug log
 
+      // Get any available cookies to include in the request
+      const cookies = getCookiesForRequest();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (cookies) {
+        headers['Cookie'] = cookies;
+      }
+
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(credentials),
         credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });
@@ -137,11 +163,19 @@ export const userApi = {
       const url = `${BACKEND_URL}/api/v1/user/register`;
       console.log('Making register request to:', url); // Debug log
 
+      // Get any available cookies to include in the request
+      const cookies = getCookiesForRequest();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (cookies) {
+        headers['Cookie'] = cookies;
+      }
+
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(userData),
         credentials: 'include', // Include credentials (cookies) for cross-origin requests
       });

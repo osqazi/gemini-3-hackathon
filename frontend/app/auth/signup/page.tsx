@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { completeAuthFlow } from '@/lib/auth-utils';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -61,18 +62,16 @@ export default function SignUpPage() {
         return;
       }
 
-      // Then sign in with the credentials (which will validate the user exists)
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: true, // Allow redirect to happen automatically
-        callbackUrl: '/chefs-board', // Redirect to Chef's Board page after successful sign up
-      }) as any; // Type assertion to handle NextAuth return type
-
-      if (result?.error) {
-        setError(result.error);
+      // Use the complete auth flow for proper session handling
+      const result = await completeAuthFlow(email, password, true, fullName);
+      
+      if (!result.success) {
+        setError(result.error || 'Authentication failed after registration');
+        return;
       }
-      // If no error, the redirect will happen automatically
+
+      // Authentication successful, redirect manually
+      router.push('/chefs-board');
     } catch (err) {
       setError('An error occurred during sign up');
       console.error(err);
@@ -82,7 +81,10 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     try {
       // Redirect to Chef's Board page after Google sign-up
-      await signIn('google', { callbackUrl: '/chefs-board' });
+      await signIn('google', { 
+        callbackUrl: '/chefs-board',
+        redirect: true // Allow automatic redirect for Google
+      });
     } catch (err) {
       setError('An error occurred during Google sign up');
       console.error(err);
