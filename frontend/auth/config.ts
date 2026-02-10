@@ -1,9 +1,10 @@
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { userApi } from '@/lib/user-api';
+import type { NextAuthConfig } from 'next-auth';
 
 // Define the auth configuration
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -17,15 +18,15 @@ export const authConfig = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials || !credentials.email || !credentials.password) {
           return null;
         }
 
         try {
           // First, try to validate existing credentials
           const response = await userApi.validateCredentials({
-            email: credentials.email,
-            password: credentials.password
+            email: credentials.email as string,
+            password: credentials.password as string
           });
 
           if (response.success && response.user) {
@@ -34,7 +35,7 @@ export const authConfig = {
               id: response.user.id,
               email: response.user.email,
               name: response.user.username || response.user.email.split('@')[0],
-            };
+            } as any; // Type assertion to bypass strict typing
           }
         } catch (validationError) {
           console.log('Validation failed, attempting registration:', validationError);
@@ -43,9 +44,9 @@ export const authConfig = {
         // If validation failed, try to register the user (for first-time sign-ups)
         try {
           const registerResponse = await userApi.register({
-            email: credentials.email,
-            password: credentials.password,
-            username: credentials.fullName // Use full name as username
+            email: credentials.email as string,
+            password: credentials.password as string,
+            username: credentials.fullName as string // Use full name as username
           });
 
           if (registerResponse.success && registerResponse.user) {
@@ -54,7 +55,7 @@ export const authConfig = {
               id: registerResponse.user.id,
               email: registerResponse.user.email,
               name: registerResponse.user.username || credentials.fullName || registerResponse.user.email.split('@')[0],
-            };
+            } as any; // Type assertion to bypass strict typing
           }
         } catch (registrationError) {
           console.error('Registration failed:', registrationError);
@@ -71,7 +72,7 @@ export const authConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, profile, email, credentials }) {
       try {
         // Determine provider and provider ID
         const provider = account?.provider || 'credentials';
@@ -81,11 +82,11 @@ export const authConfig = {
 
         // Create or lookup user in backend database
         const response = await userApi.lookupOrCreate({
-          email: user.email,
+          email: user.email!,
           provider: provider,
-          provider_id: providerId,
-          username: user.name || user.email.split('@')[0],
-          password: null // Only for credentials login, which is handled separately
+          provider_id: providerId || undefined,
+          username: user.name || user.email!.split('@')[0],
+          password: undefined // Only for credentials login, which is handled separately
         });
 
         console.log('User API response:', response);
@@ -102,7 +103,7 @@ export const authConfig = {
       }
     },
 
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger }) {
       if (user) {
         // User object is available during sign in
         token.id = user.id;
@@ -110,7 +111,7 @@ export const authConfig = {
         token.name = user.name;
       }
 
-      if (account && profile) {
+      if (account) {
         // Store provider info in token
         token.provider = account.provider;
         token.providerAccountId = account.providerAccountId;
@@ -119,17 +120,17 @@ export const authConfig = {
       return token;
     },
 
-    async session({ session, token }) {
+    async session({ session, token, user }) {
       // Add user ID and provider info to session
       session.user.id = token.id as string;
-      session.user.provider = token.provider as string;
+      (session.user as any).provider = token.provider as string | undefined;
 
       // Fetch user info from backend API to ensure consistency
       try {
         const response = await userApi.lookupOrCreate({
-          email: session.user.email,
-          provider: session.user.provider || 'credentials',
-          username: session.user.name || session.user.email.split('@')[0],
+          email: session.user.email!,
+          provider: (session.user as any).provider || 'credentials',
+          username: session.user.name || session.user.email!.split('@')[0],
         });
 
         if (response.success && response.user) {

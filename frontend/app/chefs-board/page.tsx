@@ -137,7 +137,7 @@ export default function ChefsBoardPage() {
           // Create a set of existing recipe IDs to avoid duplicates
           const existingIds = new Set(prev.map(recipe => recipe.id));
           // Filter out any recipes that already exist in the current list
-          const newRecipes = data.recipes.filter(recipe => !existingIds.has(recipe.id));
+          const newRecipes = data.recipes.filter((recipe: Recipe) => !existingIds.has(recipe.id));
           return [...prev, ...newRecipes];
         });
       } else {

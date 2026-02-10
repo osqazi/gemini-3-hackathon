@@ -1,16 +1,17 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 
-export default function AuthErrorPage() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error');
-
+export default function AuthErrorPage({ error }: { error?: Error; reset?: () => void }) {
   useEffect(() => {
-    console.error('Auth error:', error);
+    // Log the error to an error reporting service
+    if (error) {
+      console.error('Auth error:', error);
+    }
   }, [error]);
 
+  // Note: For Next.js 13+ App Router, error boundaries work differently
+  // This page acts as a global error page for auth-related errors
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8">
@@ -19,9 +20,7 @@ export default function AuthErrorPage() {
             Authentication Error
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            {error === 'AccessDenied'
-              ? 'Access denied. Please contact support if this is unexpected.'
-              : `Error: ${error || 'An unknown error occurred'}`}
+            An authentication error occurred. Please try signing in again.
           </p>
           <div className="mt-6">
             <a

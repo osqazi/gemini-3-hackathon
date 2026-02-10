@@ -3,12 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-declare global {
-  interface Window {
-    loadingBar: any;
-  }
-}
-
 export default function LoadingBar() {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);

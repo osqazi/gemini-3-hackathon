@@ -6,7 +6,7 @@ import SessionProvider from '@/components/auth/SessionProvider';
 import { GuestModeProvider } from '@/components/auth/guest-mode';
 import ConditionalLayout from './conditional-layout';
 import Footer from '@/components/footer';
-import LoadingBar from '@/components/ui/loading-bar';
+import RouteSpecificLoadingBar from '@/components/RouteSpecificLoadingBar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,7 +27,7 @@ export default function RootLayout({
         <SessionProvider>
           <GuestModeProvider>
             <div className="flex flex-col min-h-screen bg-background">
-              <LoadingBar />
+              <RouteSpecificLoadingBar />
               <ConditionalLayout>
                 {children}
               </ConditionalLayout>

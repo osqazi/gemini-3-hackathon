@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Message } from './types'; // Assuming a Message type exists
+import { Message } from '@/types'; // Import Message type from main types file
 
 interface MessageAnimationProps {
   children: React.ReactNode;

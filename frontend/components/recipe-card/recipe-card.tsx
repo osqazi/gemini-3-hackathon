@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DownloadIcon, ClockIcon, UtensilsIcon, ChefHatIcon, XIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { saveAs } from 'file-saver';
+// Replaced file-saver with native browser API
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -275,8 +275,16 @@ export default function RecipeCard({
         });
       }
 
-      // Save the PDF
-      pdf.save(`${title.replace(/\s+/g, '_')}_Recipe.pdf`);
+      // Save the PDF using native browser functionality
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title.replace(/\s+/g, '_')}_Recipe.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       alert('Failed to export recipe to PDF. Please try again.');

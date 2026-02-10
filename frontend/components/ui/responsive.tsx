@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { TouchEvent, MouseEvent, useState, ReactNode } from 'react';
+import React, { TouchEvent, MouseEvent, useState, ReactNode } from 'react';
 
 interface TouchFriendlyButtonProps {
   children: ReactNode;

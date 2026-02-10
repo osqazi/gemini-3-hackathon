@@ -18,7 +18,8 @@ interface RecipeRendererProps {
 
 const RecipeRenderer: React.FC<RecipeRendererProps> = ({ recipe, className, userId, onShareToChefsBoard }) => {
   // Determine if the recipe is public (shared to Chef's Board)
-  const isPublic = recipe.public || (recipe as any).public === true;
+  // The public field might be on a database recipe object rather than the frontend Recipe type
+  const isPublic = (recipe as any).public || false;
   
   return (
     <Card className={className}>
@@ -64,7 +65,10 @@ const RecipeRenderer: React.FC<RecipeRendererProps> = ({ recipe, className, user
             {recipe.ingredients?.map((ingredient, index) => (
               <li key={index} className="flex items-start">
                 <span className="mr-2 text-primary">•</span>
-                <span>{ingredient}</span>
+                <span>
+                  {ingredient.quantity} {ingredient.name}
+                  {ingredient.preparation && ` (${ingredient.preparation})`}
+                </span>
               </li>
             ))}
           </ul>
@@ -110,13 +114,13 @@ const RecipeRenderer: React.FC<RecipeRendererProps> = ({ recipe, className, user
         )}
 
         {/* Variations Section */}
-        {recipe.variations && recipe.variations.length > 0 && (
+        {recipe.tipsVariations && recipe.tipsVariations.length > 0 && (
           <>
             <Separator />
             <section>
               <h3 className="text-lg font-semibold mb-3">Variations</h3>
               <ul className="list-disc pl-5 space-y-1">
-                {recipe.variations.map((variation, index) => (
+                {recipe.tipsVariations.map((variation, index) => (
                   <li key={index}>{variation}</li>
                 ))}
               </ul>
@@ -131,27 +135,27 @@ const RecipeRenderer: React.FC<RecipeRendererProps> = ({ recipe, className, user
             <section>
               <h3 className="text-lg font-semibold mb-3">Nutrition Info</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {recipe.nutritionInfo.calories !== undefined && (
+                {recipe.nutritionInfo.caloriesPerServing !== undefined && (
                   <div className="text-center p-2 bg-muted rounded">
-                    <div className="text-2xl font-bold">{recipe.nutritionInfo.calories}</div>
+                    <div className="text-2xl font-bold">{recipe.nutritionInfo.caloriesPerServing}</div>
                     <div className="text-xs text-muted-foreground">Calories</div>
                   </div>
                 )}
-                {recipe.nutritionInfo.protein !== undefined && (
+                {recipe.nutritionInfo.proteinG !== undefined && (
                   <div className="text-center p-2 bg-muted rounded">
-                    <div className="text-2xl font-bold">{recipe.nutritionInfo.protein}g</div>
+                    <div className="text-2xl font-bold">{recipe.nutritionInfo.proteinG}g</div>
                     <div className="text-xs text-muted-foreground">Protein</div>
                   </div>
                 )}
-                {recipe.nutritionInfo.carbs !== undefined && (
+                {recipe.nutritionInfo.carbsG !== undefined && (
                   <div className="text-center p-2 bg-muted rounded">
-                    <div className="text-2xl font-bold">{recipe.nutritionInfo.carbs}g</div>
+                    <div className="text-2xl font-bold">{recipe.nutritionInfo.carbsG}g</div>
                     <div className="text-xs text-muted-foreground">Carbs</div>
                   </div>
                 )}
-                {recipe.nutritionInfo.fat !== undefined && (
+                {recipe.nutritionInfo.fatG !== undefined && (
                   <div className="text-center p-2 bg-muted rounded">
-                    <div className="text-2xl font-bold">{recipe.nutritionInfo.fat}g</div>
+                    <div className="text-2xl font-bold">{recipe.nutritionInfo.fatG}g</div>
                     <div className="text-xs text-muted-foreground">Fat</div>
                   </div>
                 )}

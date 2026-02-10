@@ -216,7 +216,7 @@ const ChatPage = () => {
                     cookingTime: response.session.recipe_context.cooking_time || 0,
                     servings: response.session.recipe_context.servings || 1,
                     difficulty: response.session.recipe_context.difficulty || 'medium',
-                    nutritionInfo: response.session.recipe_context.nutrition_info || {},
+                    nutritionInfo: response.session.recipe_context.nutritionInfo || {},
                     variations: response.session.recipe_context.variations || [],
                     tags: response.session.recipe_context.tags || [],
                     reasoning: response.session.recipe_context.reasoning || '',
@@ -224,7 +224,34 @@ const ChatPage = () => {
                     createdAt: new Date()
                   };
 
-                  setCurrentRecipe(recipeFromContext);
+                  // Transform the recipe to match the Recipe interface (especially ingredients format)
+                  const transformedRecipe: Recipe = {
+                    ...recipeFromContext,
+                    ingredients: recipeFromContext.ingredients?.map((ing: any) => {
+                      if (typeof ing === 'string') {
+                        return {
+                          name: ing,
+                          quantity: ''
+                        };
+                      } else if (typeof ing === 'object' && ing.name) {
+                        return {
+                          name: ing.name,
+                          quantity: ing.quantity || '',
+                          preparation: ing.preparation || ''
+                        };
+                      } else {
+                        return {
+                          name: String(ing),
+                          quantity: ''
+                        };
+                      }
+                    }) || [],
+                    tipsVariations: (recipeFromContext as any).tipsVariations || recipeFromContext.variations || [],
+                    nutritionInfo: recipeFromContext.nutritionInfo || {},
+                    generatedAt: undefined
+                  };
+                  
+                  setCurrentRecipe(transformedRecipe);
                 }
               } else {
                 // If session not found in backend (e.g., new session), create a new one with that ID
@@ -320,10 +347,37 @@ const ChatPage = () => {
 
       // Update recipe if provided in response
       if (response.recipe) {
+        // Transform the recipe to match the Recipe interface (especially ingredients format)
+        const transformedRecipe: Recipe = {
+          ...response.recipe,
+          ingredients: response.recipe.ingredients?.map((ing: any) => {
+            if (typeof ing === 'string') {
+              return {
+                name: ing,
+                quantity: ''
+              };
+            } else if (typeof ing === 'object' && ing.name) {
+              return {
+                name: ing.name,
+                quantity: ing.quantity || '',
+                preparation: ing.preparation || ''
+              };
+            } else {
+              return {
+                name: String(ing),
+                quantity: ''
+              };
+            }
+          }) || [],
+          tipsVariations: response.recipe.tipsVariations || (response.recipe as any).variations || [],
+          nutritionInfo: response.recipe.nutritionInfo || {},
+          generatedAt: response.recipe.generatedAt
+        };
+        
         // Set the recipe state first
-        setCurrentRecipe(response.recipe);
+        setCurrentRecipe(transformedRecipe);
         setRecipeMessageId(aiMessage.id); // Track which message is associated with the recipe
-        updateSessionRecipe(response.recipe);
+        updateSessionRecipe(transformedRecipe);
 
         // The dialog will be shown via useEffect when recipe is updated and user is authenticated
       }
@@ -524,6 +578,7 @@ const ChatPage = () => {
                             const fallbackRecipe: Recipe = {
                               id: `extracted-${message.id}`,
                               title: "New Recipe",
+                              description: "",
                               ingredients: [],
                               instructions: [],
                               prepTime: 0,
@@ -533,14 +588,15 @@ const ChatPage = () => {
                               difficulty: "medium" as const,
                               nutritionInfo: {},
                               reasoning: "",
-                              variations: [],
+                              tipsVariations: [],
                               author: "AI Generated",
                               createdAt: new Date(),
                               tags: [],
                               customizationNotes: [],
                               images: [],
                               sourceRecipeId: undefined,
-                              ragContext: undefined
+                              ragContext: undefined,
+                              generatedAt: new Date().toISOString()
                             };
                             
                             // Update the current recipe with the fallback data
@@ -637,42 +693,23 @@ const ChatPage = () => {
               id={currentRecipe.id || 'current-recipe'}
               title={currentRecipe.title}
               description={currentRecipe.description || ''}
-              ingredients={currentRecipe.ingredients?.map(ing => {
-                // Handle both string format and object format for ingredients
-                if (typeof ing === 'string') {
-                  return {
-                    name: ing,
-                    quantity: ''
-                  };
-                } else if (typeof ing === 'object' && ing.name) {
-                  return {
-                    name: ing.name,
-                    quantity: ing.quantity || '',
-                    preparation: ing.preparation || ''
-                  };
-                } else {
-                  return {
-                    name: ing,
-                    quantity: ''
-                  };
-                }
-              }) || []}
+              ingredients={currentRecipe.ingredients || []}
               instructions={currentRecipe.instructions || []}
-              prepTime={currentRecipe.prep_time} // Using the correct field name
-              cookTime={currentRecipe.cook_time}
-              totalTime={currentRecipe.total_time}
+              prepTime={currentRecipe.prepTime}
+              cookTime={currentRecipe.cookingTime}
+              totalTime={currentRecipe.totalTime}
               servings={currentRecipe.servings}
               difficulty={currentRecipe.difficulty || 'medium'}
               nutritionInfo={{
-                caloriesPerServing: currentRecipe.nutrition_info?.calories,
-                proteinG: currentRecipe.nutrition_info?.protein,
-                carbsG: currentRecipe.nutrition_info?.carbs,
-                fatG: currentRecipe.nutrition_info?.fat,
-                fiberG: undefined // Not provided in the NutritionInfo type
+                caloriesPerServing: currentRecipe.nutritionInfo?.caloriesPerServing,
+                proteinG: currentRecipe.nutritionInfo?.proteinG,
+                carbsG: currentRecipe.nutritionInfo?.carbsG,
+                fatG: currentRecipe.nutritionInfo?.fatG,
+                fiberG: currentRecipe.nutritionInfo?.fiberG
               }}
-              tipsVariations={currentRecipe.tips_variations || []}
+              tipsVariations={currentRecipe.tipsVariations || []}
               author={currentRecipe.author || "AI Generated"}
-              generatedAt={currentRecipe.generated_at}
+              generatedAt={currentRecipe.generatedAt}
               tags={[]} // Not provided in the Recipe type
               customizationNotes={[]} // Not provided in the Recipe type
               images={[]} // Not provided in the Recipe type

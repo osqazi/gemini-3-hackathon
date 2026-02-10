@@ -85,9 +85,6 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
 
 AnimatedButton.displayName = "AnimatedButton";
 
-// Wrapper for the original button with animations
-const AnimatedButtonWrapper = motion(AnimatedButton);
-
 interface AnimatedButtonWithMotionProps extends AnimatedButtonProps {
   animateOnHover?: boolean;
 }
@@ -113,17 +110,21 @@ export const AnimatedButtonWithEffects = ({
     : {};
 
   return (
-    <AnimatedButtonWrapper
+    <motion.div
       className={className}
-      isLoading={isLoading}
-      loadingText={loadingText}
-      pulseOnHover={pulseOnHover}
-      disabled={disabled}
       {...motionProps}
-      {...props}
     >
-      {children}
-    </AnimatedButtonWrapper>
+      <AnimatedButton
+        isLoading={isLoading}
+        loadingText={loadingText}
+        pulseOnHover={pulseOnHover}
+        scaleOnHover={scaleOnHover}
+        disabled={disabled}
+        {...props}
+      >
+        {children}
+      </AnimatedButton>
+    </motion.div>
   );
 };
 

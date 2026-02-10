@@ -206,7 +206,7 @@ const ChatPage = () => {
         cook_time: currentRecipe.cookingTime,
         total_time: currentRecipe.totalTime,
         nutrition_info: currentRecipe.nutritionInfo,
-        tips_variations: currentRecipe.variations || [],
+        tips_variations: currentRecipe.tipsVariations || [],
         customization_notes: currentRecipe.customizationNotes || [],
         images: currentRecipe.images || [],
         tags: currentRecipe.tags || [],
@@ -219,7 +219,7 @@ const ChatPage = () => {
       // Call the save recipe API with isPublic = false
       const result = await saveRecipe(recipeData, false, session.user.email);
       
-      if (result.success) {
+      if (result.success && result.recipe_id) {
         // Update the recipe ID to the one returned from the database
         setCurrentRecipe({...currentRecipe, id: result.recipe_id});
         setRecipeSaved(true);
@@ -287,9 +287,9 @@ const ChatPage = () => {
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-semibold">Your Generated Recipe</h2>
             </div>
-            <RecipeRenderer 
-              recipe={currentRecipe} 
-              userId={session?.user?.email} 
+            <RecipeRenderer
+              recipe={currentRecipe}
+              userId={session?.user?.email || undefined}
               onShareToChefsBoard={handleShareToChefsBoard}
             />
           </div>

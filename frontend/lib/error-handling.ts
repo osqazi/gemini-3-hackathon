@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast';
+import React from 'react';
 
 // Define error types
 export enum ErrorType {
@@ -265,19 +266,3 @@ export interface ErrorBoundaryState {
   hasError: boolean;
   error: ErrorDetails | null;
 }
-
-// Fallback UI for error boundaries
-export const ErrorFallback = ({ error, resetError }: { error: ErrorDetails; resetError: () => void }) => {
-  return (
-    <div className="flex flex-col items-center justify-center p-8 text-center">
-      <h2 className="text-2xl font-bold text-destructive mb-4">Something went wrong!</h2>
-      <p className="text-muted-foreground mb-4">{error.userFriendlyMessage || error.message}</p>
-      <button
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90"
-        onClick={resetError}
-      >
-        Try Again
-      </button>
-    </div>
-  );
-};

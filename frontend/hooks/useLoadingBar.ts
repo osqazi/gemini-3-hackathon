@@ -1,15 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-declare global {
-  interface Window {
-    loadingBar: {
-      start: () => void;
-      update: (value: number) => void;
-      finish: () => void;
-    };
-  }
-}
-
 export const useLoadingBar = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 

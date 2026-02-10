@@ -1,8 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { RecipeCardProps } from './recipe-card'; // Assuming this is the interface for the recipe card
 import RecipeCard from './recipe-card';
+import { Recipe } from '@/types'; // Use the Recipe interface from types
+type RecipeCardProps = Recipe; // Define RecipeCardProps as an alias for Recipe
 
 interface RecipeCardAnimationProps {
   recipe: RecipeCardProps;

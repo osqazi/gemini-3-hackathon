@@ -80,9 +80,9 @@ const ExportButton: React.FC<ExportButtonProps> = ({ recipe, className }) => {
       markdown += `${recipe.reasoning}\n\n`;
     }
 
-    if (recipe.variations && recipe.variations.length > 0) {
+    if (recipe.tipsVariations && recipe.tipsVariations.length > 0) {
       markdown += "## Variations\n\n";
-      recipe.variations.forEach(variation => {
+      recipe.tipsVariations.forEach(variation => {
         markdown += `- ${variation}\n`;
       });
     }

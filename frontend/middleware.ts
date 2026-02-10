@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
 
   // Protected routes that require authentication (excluding /user and /profile routes to avoid redirect loops)
   // Let the individual pages handle authentication checks
-  const protectedRoutes = [];
+  const protectedRoutes: string[] = [];
 
   if (protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route)) && !hasSession) {
     const url = request.nextUrl.clone();

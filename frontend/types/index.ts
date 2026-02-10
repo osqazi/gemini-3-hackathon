@@ -1,3 +1,14 @@
+// Global window extension for loading bar
+declare global {
+  interface Window {
+    loadingBar?: {
+      start: () => void;
+      update: (value: number) => void;
+      finish: () => void;
+    };
+  }
+}
+
 // Session type representing a user's interaction session
 export interface Session {
   id: string; // UUID format - Unique identifier for the user session
@@ -10,6 +21,11 @@ export interface Session {
     ingredients: string[];
     observations: string;
   };
+  refinements?: Array<{ // Recipe refinement requests
+    text: string;
+    timestamp: string;
+    recipe: Recipe;
+  }>;
 }
 
 // Message type for chat interactions
@@ -26,14 +42,20 @@ export interface Message {
 export interface Recipe {
   id: string; // Unique identifier for the recipe
   title: string; // Title of the recipe
-  ingredients: string[]; // List of ingredients required
+  ingredients: Array<{name: string, quantity: string, preparation?: string}>; // List of ingredients required
   instructions: string[]; // Step-by-step cooking instructions
   cookingTime?: number; // Estimated cooking time in minutes
   servings?: number; // Number of servings
   difficulty?: 'easy' | 'medium' | 'hard'; // Difficulty level
-  nutritionInfo?: NutritionInfo; // Nutritional information if available
+  nutritionInfo?: { // Nutritional information if available
+    caloriesPerServing?: number;
+    proteinG?: number;
+    carbsG?: number;
+    fatG?: number;
+    fiberG?: number;
+  };
   reasoning?: string; // AI's reasoning behind the recipe choices
-  variations?: string[]; // Possible recipe variations
+  tipsVariations?: string[]; // Tips and variations (renamed from variations)
   createdAt: Date; // When the recipe was generated
   prepTime?: number; // Preparation time
   totalTime?: number; // Total time
@@ -42,6 +64,10 @@ export interface Recipe {
   images?: string[]; // Recipe images
   sourceRecipeId?: string; // Source recipe ID if derived from another
   ragContext?: any; // RAG context information
+  author?: string; // Author of the recipe
+  description?: string; // Description of the recipe
+  generatedAt?: string; // When the recipe was generated (for display)
+  public?: boolean; // Whether the recipe is public/shared to Chef's Board
 }
 
 // Nutrition information type
